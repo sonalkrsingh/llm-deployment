@@ -60,12 +60,18 @@ Key Components:
 
 ⚙️ Prerequisites
 ✅ AWS Account with necessary permissions
+
 ✅ Terraform v1.0+
+
 ✅ AWS CLI configured (aws configure)
+
 ✅ kubectl configured
+
 ✅ helm installed
 
+
 🚀 Deployment Steps
+
 1️⃣ Infrastructure Provisioning
 bash
 Copy
@@ -76,6 +82,9 @@ terraform plan
 terraform apply
 
 2️⃣ Deploy Kubernetes Resources
+bash
+Copy
+Edit
 kubectl apply -f storage-class.yaml
 kubectl apply -f ollama-pvc.yaml
 kubectl apply -f ollama-statefulset.yaml
@@ -89,10 +98,12 @@ EKS Cluster: Kubernetes v1.33
 Node Groups:
 
 On-demand: 2 × c6a.8xlarge (32 vCPUs, 64GB RAM)
-Spot: 2 × c6i.4xlarge / c6a.4xlarge (16 vCPUs, 32GB RAM)
-Networking: VPC with public/private subnets across 3 AZs
-Storage: 60GB gp2 volumes for model weights
 
+Spot: 2 × c6i.4xlarge / c6a.4xlarge (16 vCPUs, 32GB RAM)
+
+Networking: VPC with public/private subnets across 3 AZs
+
+Storage: 60GB gp2 volumes for model weights
 
 🐳 Kubernetes Components
 Component	Description
@@ -101,11 +112,9 @@ CPU: 6–8 cores, Memory: 12–16 GB
 Open Web UI	Single replica + LoadBalancer service
 LLM Router	Nginx with rate limiting (10 req/sec)
 
-
 🧠 Default Model: llama3.1:8b
 
-⚡ GPU Configuration (Theoretical Support)
-To enable GPU support, update the following:
+⚡ GPU Configuration (Theoretical Support)To enable GPU support, update the following:
 
 1️⃣ Terraform (eks.tf)
 hcl
@@ -234,7 +243,12 @@ Large models (>8B) are not supported without GPUs
  Prometheus/Grafana metrics dashboard
 
 🎥 Video Demo
-📽️ [[text](https://drive.google.com/file/d/1v-97KfXKRvpOTaDp5BEqhk28EtaHbjH5/view?usp=sharing)]
+📽️ [[Video Demo](https://drive.google.com/file/d/1v-97KfXKRvpOTaDp5BEqhk28EtaHbjH5/view?usp=sharing)]
+
+📽️ [[Click here for Live Demo]((http://a05a8e603cd59491d916da61a4862643-203951574.ap-south-1.elb.amazonaws.com/auth))]
+    credentials
+    username:-admin@my.com
+    Password:- password
 
 🙌 Contributions & Feedback
 Have ideas to improve this project? Open an issue or submit a PR!
