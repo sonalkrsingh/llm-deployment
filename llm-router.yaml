@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-router
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: llm-router
+  template:
+    metadata:
+      labels:
+        app: llm-router
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+        - name: config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+          readOnly: true
+        command: ["nginx", "-g", "daemon off;"]
+        args: ["-c", "/etc/nginx/nginx.conf"]
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: config
+        configMap:
+          name: llm-router-config
+          items:
+          - key: nginx.conf
+            path: nginx.conf
+          - key: default.conf
+            path: default.conf
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-router-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: llm-router
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: llm-router-config
+data:
+  nginx.conf: |-
+    events {
+      worker_connections 1024;
+    }
+    http {
+      limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+
+      upstream llama {
+        least_conn;
+        server ollama-service:11434;
+        keepalive 32;
+      }
+      server {
+        listen 80;
+        proxy_connect_timeout 600;
+        proxy_send_timeout 600;
+        proxy_read_timeout 600;
+        send_timeout 600;
+        
+        location = /healthz {
+          return 200;
+        }
+        
+        location / {
+          if ($http_user_agent ~* "kube-probe") {
+            return 200;
+          }
+          proxy_pass http://openwebui-service:80;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Model $http_x_model;
+        }
+
+        location /api {
+          limit_req zone=api_limit burst=20;
+          proxy_pass http://ollama-service:11434;
+          proxy_set_header Host $host;
+          }
+      }
+    }
+  default.conf: |-
+    server {
+      listen 80 default_server;
+      return 444;
+    }

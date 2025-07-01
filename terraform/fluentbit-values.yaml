@@ -1,0 +1,20 @@
+# fluentbit-values.yaml
+config:
+  outputs: |
+    [OUTPUT]
+        Name cloudwatch_logs
+        Match *
+        region ${aws_region}
+        log_group_name /aws/eks/${cluster_name}/containers
+        log_stream_prefix fluent-bit-
+        auto_create_group true
+        retry_limit 2
+
+service:
+  annotations:
+    eks.amazonaws.com/role-arn: ${module.eks_blueprints_addons.fluentbit_irsa_arn}
+
+tolerations:
+  - key: "spot"
+    operator: "Exists"
+    effect: "NoSchedule"

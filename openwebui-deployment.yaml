@@ -1,0 +1,56 @@
+# openwebui-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: openwebui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: openwebui
+  template:
+    metadata:
+      labels:
+        app: openwebui
+    spec:
+      containers:
+        - name: openwebui
+          image: ghcr.io/open-webui/open-webui:main
+          ports:
+            - containerPort: 8080
+          env:  
+            - name: OLLAMA_BASE_URL  
+              value: "http://ollama-service:11434"
+            - name: WEBUI_API_PREFIX
+              value: "/api"
+            - name: OLLAMA_API_BASE_URL
+              value: "http://ollama-service:11434/api"
+            - name: WEBUI_API_BASE_URL
+              value: "http://ollama-service:11434/api"
+            - name: DISABLE_MODEL_FILTER
+              value: "true" 
+            - name: DEFAULT_USER_EMAIL
+              value: "admin@my.com"
+            - name: DEFAULT_USER_PASSWORD
+              value: "password"
+          resources:
+            requests:
+              cpu: "0.5"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: openwebui-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: openwebui
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
