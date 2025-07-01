@@ -245,7 +245,8 @@ Large models (>8B) are not supported without GPUs
 🎥 Video Demo
 📽️ [[Video Demo](https://drive.google.com/file/d/1v-97KfXKRvpOTaDp5BEqhk28EtaHbjH5/view?usp=sharing)]
 
-📽️ [[Click here for Live Demo]((http://a05a8e603cd59491d916da61a4862643-203951574.ap-south-1.elb.amazonaws.com/auth))]
+📽️ ([Live demo](http://a05a8e603cd59491d916da61a4862643-203951574.ap-south-1.elb.amazonaws.com/auth))
+
     credentials
     username:-admin@my.com
     Password:- password
